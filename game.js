@@ -34,13 +34,61 @@ function DrawMenu() {
     Ctx.fillText("Press H for how to play", Canvas.width/2,350);
     Ctx.fillText("Press C to credits", Canvas.width/2,400);
 
-    if (keys["Enter"]) CurrentState = "Playing";
-    if (keys["H"]) CurrentState = "HowToPlay";
-    if (keys["C"]) CurrentState = "Credits";
+    if (Keys["Enter"]) CurrentState = "Playing";
+    if (Keys["H"]) CurrentState = "HowToPlay";
+    if (Keys["C"]) CurrentState = "Credits";
 }
 
 function DrawHowToPlay() {
     Ctx.clearRect(0,0,Canvas.width, Canvas.height);
     Ctx.fillStyle = "white";
     Ctx.fillText("How to Play", Canvas.width/2, 200);
-    Ctx.fillText
+    Ctx.fillText("[ Press ESC to go back ]",Canvas.width / 2, 200);
+
+    if (Keys["Escape"]) CurrentState = "Menu";
+}
+
+function DrawCredits(){
+    Ctx.clearRect(0,0,Canvas.width/2, 200);
+    Ctx.fillStyle = "white";
+    Ctx.fillText("Credits Screen", Canvas.width/2,200);
+    Ctx.fillText("[ Press ESC to go back ]");
+
+    if (Keys["Escape"]) CurrentState = "Menu";
+}
+
+function DrawGame(){
+    Ctx.clearRect(0,0,Canvas.width,Canvas.height)
+    Ctx.fillRect(Player.X, Player.Y,Player.Width,Player.Height);
+    if(IsInverted){
+        Ctx.fillStyle = "white";
+        Ctx.font = "24px monospace";
+        Ctx.textAlign = "center";
+        Ctx.fillText("Warning: STEERING BROKEN!!!", Canvas.width/2, Canvas.height/2);
+    }
+}
+
+function MainLoop(){
+
+    if(CurrentState ==="Menu"){
+        DrawMenu();
+    }
+
+    else if(CurrentState ==="HowToPlay"){
+        DrawHowToPlay();
+    }
+    
+    else if(CurrentState ==="Credits"){
+        DrawCredits();
+    }
+
+    
+    else if(CurrentState ==="Playing"){
+        UpdateGame();
+        DrawGame();
+    }
+    requestAnimationFrame(MainLoop);
+}
+
+
+MainLoop();
