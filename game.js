@@ -11,8 +11,8 @@ let BestScore = 0;
 let Player = {
     X: 0,
     Y: 500,
-    Width: 80,  
-    Height: 90, 
+    Width: 80,
+    Height: 90,
     Speed: 5
 };
 
@@ -30,6 +30,8 @@ const RoadMargin = Canvas.width * 0.08;
 
 const LaneCount = 4;
 const LaneWidth = (Canvas.width - RoadMargin * 2) / LaneCount;
+
+const WheelOverhang = 80 * 0.18 * 0.3;
 
 window.addEventListener("keydown", (Event) => Keys[Event.key] = true);
 window.addEventListener("keyup", (Event) => Keys[Event.key] = false);
@@ -54,9 +56,9 @@ function ResetGame() {
 }
 
 function SpawnEnemy() {
-    const RandomLane = Math.floor(Math.random() * LaneCount); 
+    const RandomLane = Math.floor(Math.random() * LaneCount);
 
-    const EnemyWidth = 80; 
+    const EnemyWidth = 80;
     const EnemyX = RoadMargin + (RandomLane * LaneWidth) + (LaneWidth - EnemyWidth) / 2;
 
     const RandomColor = EnemyColors[Math.floor(Math.random() * EnemyColors.length)];
@@ -65,7 +67,7 @@ function SpawnEnemy() {
         X: EnemyX,
         Y: -100,
         Width: EnemyWidth,
-        Height: 90, 
+        Height: 90,
         Speed: 3 + Math.random() * 3,
         Color: RandomColor
     });
@@ -80,8 +82,13 @@ function UpdateGame() {
         if (Keys["ArrowRight"] || Keys["d"]) Player.X -= Player.Speed;
     }
 
-    if (Player.X < 0) Player.X = 0;
-    if (Player.X + Player.Width > Canvas.width) Player.X = Canvas.width - Player.Width;
+    if (Player.X < RoadMargin) Player.X = RoadMargin;
+    if (Player.X + Player.Width > Canvas.width - RoadMargin) Player.X = Canvas.width - RoadMargin - Player.Width;
+    if (Player.X <= RoadMargin || Player.X + Player.Width >= Canvas.width - RoadMargin) {
+        if (Score > BestScore) BestScore = Score;
+        CurrentState = "Menu";
+        return;
+    }
 
     for (let i = 0; i < RoadStripes.length; i++) {
         RoadStripes[i] += 6;
@@ -105,10 +112,9 @@ function UpdateGame() {
             Score++;
             continue;
         }
-
         if (
-            Player.X < Enemy.X + Enemy.Width &&
-            Player.X + Player.Width > Enemy.X &&
+            (Player.X - WheelOverhang) < (Enemy.X + Enemy.Width + WheelOverhang) &&
+            (Player.X + Player.Width + WheelOverhang) > (Enemy.X - WheelOverhang) &&
             Player.Y < Enemy.Y + Enemy.Height &&
             Player.Y + Player.Height > Enemy.Y
         ) {
@@ -218,9 +224,10 @@ function DrawCar(X, Y, Width, Height, Color) {
 
     // Windscreen ig
     Ctx.fillStyle = "rgba(180,220,255,0.85)";
-    Ctx.fillRect(X + Width * 0.15, Y + Height * 0.12, Width * 0.7, Height * 0.22); 
-    Ctx.fillRect(X + Width * 0.15, Y + Height * 0.66, Width * 0.7, Height * 0.22); 
-}
+    Ctx.fillRect(X + Width * 0.15, Y + Height * 0.12, Width * 0.7, Height * 0.22);
+    Ctx.fillRect(X + Width * 0.15, Y + Height * 0.66, Width * 0.7, Height * 0.22);
+} 
+
 function DrawScoreboard() {
     const PanelX = 10;
     const PanelY = 10;
