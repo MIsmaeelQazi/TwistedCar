@@ -25,6 +25,8 @@ let RoadStripes = [];
 const StripeHeight = 40;
 const StripeGap = 30;
 
+let DashOffset = 0;
+
 window.addEventListener("keydown", (Event) => Keys[Event.key] = true);
 window.addEventListener("keyup", (Event) => Keys[Event.key] = false);
 
@@ -51,21 +53,18 @@ function ResetGame() {
 }
 
 function SpawnEnemy() {
-    const LaneWidth = Canvas.width / 3;
-    
-
     const RandomLane = Math.floor(Math.random() * 3);
-
-    const EnemyX = (RandomLane * LaneWidth) + (LaneWidth / 2) - (Player.Width / 2);
-
+    const EnemyWidth = LaneWidth - 4;
+    const EnemyX = RoadMargin + (RandomLane * LaneWidth) + (LaneWidth - EnemyWidth) / 2;
+ 
     const RandomColor = EnemyColors[Math.floor(Math.random() * EnemyColors.length)];
-
+ 
     Enemies.push({
         X: EnemyX,
-        Y: -100, 
-        Width: 50,
+        Y: -100,
+        Width: EnemyWidth,
         Height: 80,
-        Speed: 3 + Math.random() * 3, 
+        Speed: 3 + Math.random() * 3,
         Color: RandomColor
     });
 }
@@ -89,6 +88,7 @@ function UpdateGame() {
         }
         }
 
+        DashOffset -= 6;
 
     Frames++;
     if (Frames % 80 === 0) { 
@@ -156,7 +156,6 @@ function DrawRoad(){
     Ctx.fillStyle = "#2f5d34"; //grass
     Ctx.fillRect(0, 0, Canvas.width, Canvas.height);
 
-    const RoadMargin = Canvas.width * 0.08;
     Ctx.fillStyle = "#3a3a3a"; //Asphalt
     Ctx.fillRect(RoadMargin, 0, Canvas.width - (RoadMargin * 2), Canvas.height);
 
@@ -172,6 +171,7 @@ function DrawRoad(){
     Ctx.strokeStyle = "rgba(255, 255, 255, 0.5)"; //Lane divider
     Ctx.lineWidth = 2;
     Ctx.setLineDash([20, 20]);
+    Ctx.lineDashOffset = DashOffset; 
     Ctx.beginPath();
     Ctx.moveTo(Canvas.width / 3, 0);
     Ctx.lineTo(Canvas.width / 3, Canvas.height);
@@ -179,6 +179,7 @@ function DrawRoad(){
     Ctx.lineTo((Canvas.width / 3) * 2, Canvas.height);
     Ctx.stroke();
     Ctx.setLineDash([]);
+
 
     Ctx.fillStyle = "rgba(255, 255, 255, 0.35)"; //Animation sort of
     for (let i = 0; i < RoadStripes.length; i++) {
