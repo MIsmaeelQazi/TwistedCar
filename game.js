@@ -26,6 +26,8 @@ const StripeHeight = 40;
 const StripeGap = 30;
 
 let DashOffset = 0;
+const RoadMargin = Canvas.width * 0.08;
+const LaneWidth = (Canvas.width - RoadMargin * 2) / 3;
 
 window.addEventListener("keydown", (Event) => Keys[Event.key] = true);
 window.addEventListener("keyup", (Event) => Keys[Event.key] = false);
@@ -219,7 +221,7 @@ function DrawCar(X, Y, Width, Height, Color) {
     // Windscreen ig
     Ctx.fillStyle = "rgba(180,220,255,0.85)";
     Ctx.fillRect(X + Width * 0.15, Y + Height * 0.12, Width * 0.7, Height * 0.22);
-    Ctx.fillRect(X + Width * 0.15, Y + Height * 0.12, Width * 0.7, Height * 0.22);
+    Ctx.fillRect(X + Width * 0.15, Y + Height * 0.66, Width * 0.7, Height * 0.22);
 }
 
 function DrawScoreboard() {
