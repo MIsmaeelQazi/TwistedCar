@@ -220,6 +220,7 @@ function DrawCar(X, Y, Width, Height, Color) {
     Ctx.fillStyle = "rgba(180,220,255,0.85)";
     Ctx.fillRect(X + Width * 0.15, Y + Height * 0.12, Width * 0.7, Height * 0.22); 
     Ctx.fillRect(X + Width * 0.15, Y + Height * 0.66, Width * 0.7, Height * 0.22); 
+}
 function DrawScoreboard() {
     const PanelX = 10;
     const PanelY = 10;
@@ -278,4 +279,3 @@ function MainLoop() {
 }
 
 MainLoop();
-}
