@@ -278,3 +278,4 @@ function MainLoop() {
 }
 
 MainLoop();
+}
