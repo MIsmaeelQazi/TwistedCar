@@ -6,6 +6,7 @@ let Keys = {};
 let IsInverted = false;
 let Score = 0;
 let Frames = 0; 
+let BestScore = 0;
 
 let Player = {
     X: 0, 
@@ -159,7 +160,7 @@ function DrawRoad(){
     Ctx.fillStyle = "#3a3a3a"; //Asphalt
     Ctx.fillRect(RoadMargin, 0, Canvas.width - (RoadMargin * 2), Canvas.height);
 
-    Ctx.StrokeStyle = "white"; // road edges
+    Ctx.strokeStyle = "white"; // road edges
     Ctx.lineWidth = 4;
     Ctx.beginPath();
     Ctx.moveTo(RoadMargin, 0);
@@ -192,10 +193,10 @@ function DrawCar(X, Y, Width, Height, Color) {
     Ctx.fillStyle = "#111";
     const WheelW = Width * 0.18;
     const WheelH = Height * 0.22;
-    Ctx.fillRect(X - WheelW * 0.3, Y +Height * 0.12, WheelW, WheelH);
+    Ctx.fillRect(X - WheelW * 0.3, Y + Height * 0.12, WheelW, WheelH);
     Ctx.fillRect(X + Width - WheelW * 0.7, Y +Height * 0.12, WheelW, WheelH);
-    Ctx.fillRect(X - WheelW * 0.3, Y +Height * 0.12, WheelW, WheelH);
-    Ctx.fillRect(X + Width - WheelW * 0.7, Y +Height * 0.12, WheelW, WheelH);
+    Ctx.fillRect(X - WheelW * 0.3, Y + Height * 0.66, WheelW, WheelH);
+    Ctx.fillRect(X + Width - WheelW * 0.7, Y +Height * 0.66, WheelW, WheelH);
 
     // Body
     Ctx.fillStyle = Color;
@@ -272,8 +273,6 @@ function MainLoop(){
         DrawMenu();
     } else if(CurrentState === "HowToPlay") {
         DrawHowToPlay();
-    } else if(CurrentState === "Credits") {
-        DrawCredits();
     } else if(CurrentState === "Playing") {
         UpdateGame();
         DrawGame();
