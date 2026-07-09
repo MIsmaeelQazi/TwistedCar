@@ -47,6 +47,7 @@ function ResetGame() {
         RoadStripes.push(y);
 
 }
+}
 
 function SpawnEnemy() {
     const LaneWidth = Canvas.width / 3;
