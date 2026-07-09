@@ -7,13 +7,6 @@ let IsInverted = false;
 let Score = 0;
 let Frames = 0; 
 
-const playerImg = new Image();
-playerImg.src = "your-player-car.png";
-
-const roadImg = new Image();
-roadImg.src = "your-road.png";
-
-
 let Player = {
     X: 0, 
     Y: 500, 
@@ -27,6 +20,9 @@ let Enemies = [];
 
 const EnemyColors = ["red", "blue", "green", "yellow", "purple", "orange"];
 
+let RoadStripes = [];
+const StripeHeight = 40;
+const StripeGap = 30;
 
 window.addEventListener("keydown", (Event) => Keys[Event.key] = true);
 window.addEventListener("keyup", (Event) => Keys[Event.key] = false);
@@ -45,6 +41,11 @@ function ResetGame() {
     Frames = 0;
     IsInverted = false;
     Player.X = (Canvas.width / 2) - (Player.Width / 2);
+
+    RoadStripes = [];
+    for (let y = -StripeHeight; y < Canvas.height + StripeHeight; y += (StripeHeight + StripeGap)) {
+        RoadStripes.push(y);
+
 }
 
 function SpawnEnemy() {
@@ -79,6 +80,14 @@ function UpdateGame() {
     if (Player.X < 0) Player.X = 0;
     if (Player.X + Player.Width > Canvas.width) Player.X = Canvas.width - Player.Width;
 
+    for(let i =0; i < RoadStripes.length; i++){
+        RoadStripes[i] += 6;
+        if(RoadStripes[i] > Canvas.height){
+            RoadStripes[i] -=(StripeHeight + StripeGap) * RoadStripes.length;
+        }
+        }
+
+
     Frames++;
     if (Frames % 80 === 0) { 
         SpawnEnemy();
@@ -99,6 +108,7 @@ function UpdateGame() {
             Player.Y < Enemy.Y + Enemy.Height &&
             Player.Y + Player.Height > Enemy.Y
         ) {
+            if (Score > BestScore) BestScore = Score;
             CurrentState = "Menu"; 
         }
     }
@@ -115,38 +125,50 @@ function DrawMenu() {
     Ctx.font = "20px monospace";
     Ctx.fillText("Press Enter to Start", Canvas.width/2, Canvas.height/2 + 20);
     Ctx.fillText("Press H for how to play", Canvas.width/2, Canvas.height/2 + 60);
-    Ctx.fillText("Press C for credits", Canvas.width/2, Canvas.height/2 + 100);
-
+    
+    Ctx.font = "18px monospace";
+    Ctx.fillStyle = "yellow";
+    Ctx.fillText("Best Score: " + BestScore, Canvas.width/2, Canvas.height/2 + 100);
+    
     if (Keys["Enter"]) {
         ResetGame();
         CurrentState = "Playing";
     }
     if (Keys["h"] || Keys["H"]) CurrentState = "HowToPlay";
-    if (Keys["c"] || Keys["C"]) CurrentState = "Credits";
 }
 
 function DrawHowToPlay() {
     Ctx.clearRect(0,0,Canvas.width, Canvas.height);
     Ctx.fillStyle = "white";
+    Ctx.textAlign = "center";
+    Ctx.font = "30px monospace";
     Ctx.fillText("How to Play", Canvas.width/2, 200);
+    Ctx.font = "18px monospace";
     Ctx.fillText("Dodge cars. Steering breaks every 6s!", Canvas.width/2, 250);
     Ctx.fillText("[ Press ESC to go back ]", Canvas.width/2, 350);
 
     if (Keys["Escape"]) CurrentState = "Menu";
 }
 
-function DrawCredits() {
-    Ctx.clearRect(0,0,Canvas.width, Canvas.height);
-    Ctx.fillStyle = "white";
-    Ctx.fillText("Credits Screen", Canvas.width/2, 200);
-    Ctx.fillText("[ Press ESC to go back ]", Canvas.width/2, 350); 
-    if (Keys["Escape"]) CurrentState = "Menu";
-}
+function DrawRoad(){
+    Ctx.fillStyle = "#2f5d34"; //grass
+    Ctx.fillRect(0, 0, Canvas.width, Canvas.height);
 
-function DrawGame() {
-    Ctx.clearRect(0,0,Canvas.width, Canvas.height);
-    
-    Ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    const RoadMargin = Canvas.width * 0.08;
+    Ctx.fillStyle = "#3a3a3a"; //Asphalt
+    Ctx.fillRect(RoadMargin, 0, Canvas.width - (RoadMargin * 2), Canvas.height);
+
+    Ctx.StrokeStyle = "white"; // road edges
+    Ctx.lineWidth = 4;
+    Ctx.beginPath();
+    Ctx.moveTo(RoadMargin, 0);
+    Ctx.lineTo(RoadMargin, Canvas.height);
+    Ctx.moveTo(Canvas.width - RoadMargin, 0);
+    Ctx.lineTo(Canvas.width - RoadMargin, Canvas.height);
+    Ctx.stroke();
+
+    Ctx.strokeStyle = "rgba(255, 255, 255, 0.5)"; //Lane divider
+    Ctx.lineWidth = 2;
     Ctx.setLineDash([20, 20]);
     Ctx.beginPath();
     Ctx.moveTo(Canvas.width / 3, 0);
@@ -154,22 +176,88 @@ function DrawGame() {
     Ctx.moveTo((Canvas.width / 3) * 2, 0);
     Ctx.lineTo((Canvas.width / 3) * 2, Canvas.height);
     Ctx.stroke();
-    Ctx.setLineDash([]); 
+    Ctx.setLineDash([]);
+
+    Ctx.fillStyle = "rgba(255, 255, 255, 0.35)"; //Animation sort of
+    for (let i = 0; i < RoadStripes.length; i++) {
+        Ctx.fillRect(Canvas.width / 2 - 4, RoadStripes[i], 8, StripeHeight);
+    }
+
+}
+
+//Never did i thought drawing a car would be this hard
+function DrawCar(X, Y, Width, Height, Color) {
+    // Wheels
+    Ctx.fillStyle = "#111";
+    const WheelW = Width * 0.18;
+    const WheelH = Height * 0.22;
+    Ctx.fillRect(X - WheelW * 0.3, Y +Height * 0.12, WheelW, WheelH);
+    Ctx.fillRect(X + Width - WheelW * 0.7, Y +Height * 0.12, WheelW, WheelH);
+    Ctx.fillRect(X - WheelW * 0.3, Y +Height * 0.12, WheelW, WheelH);
+    Ctx.fillRect(X + Width - WheelW * 0.7, Y +Height * 0.12, WheelW, WheelH);
+
+    // Body
+    Ctx.fillStyle = Color;
+    const Radius = Width * 0.2;
+    Ctx.beginPath();
+    Ctx.moveTo(X + Radius, Y);
+    Ctx.lineTo(X + Width - Radius, Y);
+    Ctx.quadraticCurveTo(X + Width, Y, X + Width, Y + Radius);
+    Ctx.lineTo(X + Width, Y + Height - Radius);
+    Ctx.quadraticCurveTo(X + Width, Y + Height, X + Width - Radius, Y + Height);
+    Ctx.lineTo(X + Radius, Y + Height);
+    Ctx.quadraticCurveTo(X, Y + Height, X, Y + Height - Radius);
+    Ctx.lineTo(X, Y + Radius);
+    Ctx.quadraticCurveTo(X, Y, X + Radius, Y);
+    Ctx.closePath();
+    Ctx.fill();
+
+
+    // Windscreen ig
+    Ctx.fillStyle = "rgba(180,220,255,0.85)";
+    Ctx.fillRect(X + Width * 0.15, Y + Height * 0.12, Width * 0.7, Height * 0.22);
+    Ctx.fillRect(X + Width * 0.15, Y + Height * 0.12, Width * 0.7, Height * 0.22);
+}
+
+function DrawScoreboard() {
+    const PanelX = 10;
+    const PanelY = 10;
+    const PanelW = 170;
+    const PanelH = 60;
+    
+    Ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+    Ctx.beginPath();
+    Ctx.fillRect(PanelX, PanelY, PanelW, PanelH,8);
+    Ctx.fill();
+
+    Ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+    Ctx.lineWidth = 1;
+    Ctx.stroke();
+
+    Ctx.textAlign = "left";
+    Ctx.fillStyle = "white";
+    Ctx.font = "20px monospace";
+    Ctx.fillText("Score: " + Score, PanelX + 12, PanelY + 25);
+
+    Ctx.font = "14px monospace";
+    Ctx.fillStyle = "yellow";
+    Ctx.fillText("Best: " +Math.max(BestScore, Score), PanelX + 12, PanelY + 46);
+
+}
+
+
+
+function DrawGame() {
+    DrawRoad();
 
     for (let i = 0; i < Enemies.length; i++) {
         let Enemy = Enemies[i];
-        Ctx.fillStyle = Enemy.Color;
-        Ctx.fillRect(Enemy.X, Enemy.Y, Enemy.Width, Enemy.Height);
-        
+        DrawCar(Enemy.X, Enemy.Y, Enemy.Width, Enemy.Height, Enemy.Color);
     }
 
-    Ctx.fillStyle = "white"; 
-    Ctx.fillRect(Player.X, Player.Y, Player.Width, Player.Height);
+    DrawCar(Player.X, Player.Y, Player.Width, Player.Height, "white");
 
-    Ctx.fillStyle = "white";
-    Ctx.font = "20px monospace";
-    Ctx.textAlign = "left";
-    Ctx.fillText("Score: " + Score, 10, 30);
+    DrawScoreboard();
 
     if(IsInverted){
         Ctx.fillStyle = "red";
